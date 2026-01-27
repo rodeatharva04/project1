@@ -70,7 +70,7 @@ def fetch_paste_api(request, id):
             return JsonResponse({"error": "Not found"}, status=404)
 
         if paste.is_unavailable(now):
-            return JsonResponse({"error": "Unavailable"}, status=404)
+            return JsonResponse({"error": "Not found"}, status=404)
 
         paste.current_views += 1
         paste.save()
@@ -97,7 +97,7 @@ def fetch_paste_html(request, id):
             return HttpResponseNotFound("Paste not found")
 
         if paste.is_unavailable(now):
-            return HttpResponseNotFound("Paste is unavailable (expired or limit reached).")
+            return HttpResponseNotFound("Not Found")
 
         paste.current_views += 1
         paste.save()

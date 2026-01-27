@@ -15,11 +15,11 @@ A simple Pastebin clone built with Django.
    ```
 
 3. **Start Server**
+2. **Run Server**
    ```bash
    python manage.py runserver
    ```
-   
-   The app will be available at http://localhost:8000.
+   The app will be available at `http://localhost:8000`.
 
 ## Running Tests
 
@@ -39,7 +39,8 @@ curl -X POST http://localhost:8000/api/pastes -H "Content-Type: application/json
 
 ## Persistence Layer
 
-This project utilizes **PostgreSQL** when deployed on Railway (via `dj-database-url`) and **SQLite** for local development.
+**Choice:** SQLite (via Django ORM)
+**Reasoning:** SQLite provides file-based persistence that survives individual requests and server restarts, fulfilling the requirement to avoid purely in-memory storage (like global variables). It is lightweight and requires zero configuration for this assessment.
 
 ## Deployment (Railway)
 
