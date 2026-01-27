@@ -23,18 +23,9 @@ A simple Pastebin clone built with Django.
 
 ## Running Tests
 
-I have included a script `test_app.py` to verify functionality.
+To verify functionality, including TTL expiry which uses time-travel:
 
-**Basic Verification:**
-```bash
-python test_app.py
-```
-
-**Full Verification (including View Limits & TTL):**
-You must run the server with `TEST_MODE=1` to allow time-travel testing.
-
-1. Stop any running server.
-2. Start server in test mode:
+1. Start the server in TEST_MODE:
    *PowerShell:*
    ```powershell
    $env:TEST_MODE='1'; python manage.py runserver
@@ -43,9 +34,10 @@ You must run the server with `TEST_MODE=1` to allow time-travel testing.
    ```cmd
    set TEST_MODE=1 && python manage.py runserver
    ```
-3. Run the test script in another terminal:
+
+2. Run the verification script:
    ```bash
-   python test_app.py
+   python verify.py
    ```
 
 ## Persistence Layer
@@ -56,11 +48,16 @@ This project utilizes **PostgreSQL** when deployed on Railway (via `dj-database-
 
 1. **Push to GitHub**: Commit all changes and push to your repository.
 2. **Create Project on Railway**: Import your repo.
-3. **Add Database**: Add a PostgreSQL service in Railway.
-4. **Variables**: Set the following environment variables in your Railway Project Settings:
-   - `DJANGO_SECRET_KEY`: (Generate a random string)
+3. **Add Database**: Add a PostgreSQL service.
+4. **Variables**:
+   - `DJANGO_SECRET_KEY`: (Random string)
    - `DEBUG`: `False`
    - `TEST_MODE`: `0`
-   - `DISABLE_COLLECTSTATIC`: `0` (Optional, let Railway run collectstatic)
-- **Security**: Secret keys and debug modes are controlled via environment variables. `TEST_MODE` allows deterministic time testing without exposing it to production by default.
-- **Testing**: The API supports `x-test-now-ms` header when `TEST_MODE=1` to simulate time travel for expiry verification as per requirements.
+   - `DISABLE_COLLECTSTATIC`: `0`
+
+## Design Decisions
+
+- **Framework**: Django was chosen for its robust ORM and security features (CSRF, SQL injection protection).
+- **Persistence**: SQLite (local) / PostgreSQL (prod) via `dj-database-url` for seamless switching.
+- **Testing**: `verify.py` performs black-box testing against the deployed or local API.
+- **Deterministic Time**: Handled via `TEST_MODE` env var and `x-test-now-ms` header to allow reliable TTL testing.

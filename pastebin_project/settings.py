@@ -32,6 +32,7 @@ DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 TEST_MODE = os.environ.get('TEST_MODE', '0') == '1'
 
 ALLOWED_HOSTS = ['*']
+CSRF_TRUSTED_ORIGINS = ['https://*.railway.app', 'https://*.up.railway.app']
 
 
 # Application definition
