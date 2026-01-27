@@ -3,45 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <title>Pastebin Lite</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
-        body { font-family: sans-serif; max-width: 600px; margin: 40px auto; padding: 0 20px; }
-        textarea { width: 100%; height: 150px; padding: 10px; box-sizing: border-box; }
-        input { padding: 5px; }
-        button { padding: 10px 20px; background: #333; color: #fff; border: none; cursor: pointer; }
-        button:hover { background: #555; }
-        .result { margin-top: 20px; padding: 10px; background: #f0f0f0; word-break: break-all; }
+        body { font-family: sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; }
+        textarea { width: 100%; height: 150px; padding: 10px; }
+        .row { margin-bottom: 15px; }
+        label { display: inline-block; width: 100px; }
+        button { padding: 10px 20px; background: #222; color: #fff; border: none; cursor: pointer; }
     </style>
 </head>
 <body>
     <h1>Create Paste</h1>
-    <textarea id="content" placeholder="Enter your text here..."></textarea>
+    <textarea id="content" placeholder="Enter text here..."></textarea>
     <br><br>
-    <label>TTL (seconds, optional):</label><br>
-    <input type="number" id="ttl" placeholder="e.g. 60">
-    <br><br>
-    <label>Max Views (optional):</label><br>
-    <input type="number" id="max_v" placeholder="e.g. 5">
-    <br><br>
+    
+    <div class="row">
+        <label>TTL (sec):</label>
+        <input type="number" id="ttl" placeholder="Optional (e.g. 60)">
+    </div>
+    
+    <div class="row">
+        <label>Max Views:</label>
+        <input type="number" id="max_v" placeholder="Optional (e.g. 5)">
+    </div>
+    
     <button onclick="submitPaste()">Create Paste</button>
-
-    <div id="out" class="result" style="display:none;"></div>
+    
+    <div id="out" style="margin-top:20px; font-weight:bold; word-break: break-all;"></div>
 
     <script>
         async function submitPaste() {
             const out = document.getElementById('out');
-            out.style.display = 'block';
             out.innerText = 'Creating...';
             
             const payload = {
-                content: document.getElementById('content').value,
+                content: document.getElementById('content').value
             };
-
+            
             const ttl = document.getElementById('ttl').value;
-            if (ttl) payload.ttl_seconds = parseInt(ttl);
-
+            if(ttl) payload.ttl_seconds = parseInt(ttl);
+            
             const maxV = document.getElementById('max_v').value;
-            if (maxV) payload.max_views = parseInt(maxV);
+            if(maxV) payload.max_views = parseInt(maxV);
 
             try {
                 const res = await fetch('/api/pastes', {
@@ -52,13 +54,13 @@
                 
                 const data = await res.json();
                 
-                if (res.ok) {
-                    out.innerHTML = `Success! Link:<br><a href="${data.url}">${data.url}</a>`;
+                if(res.ok) {
+                    out.innerHTML = `URL: <a href="${data.url}">${data.url}</a>`;
                 } else {
-                    out.innerText = `Error: ${data.error || 'Unknown error'}`;
+                    out.innerText = `Error: ${data.error}`;
                 }
-            } catch (e) {
-                out.innerText = 'Network Error';
+            } catch(e) {
+                out.innerText = "Network Error";
             }
         }
     </script>
