@@ -133,3 +133,4 @@ WSGI_APPLICATION = 'pastebin_project.wsgi.application'
 
 # 3. CSRF Settings (Railway uses HTTPS, so this is required)
 CSRF_TRUSTED_ORIGINS = ['https://*.railway.app']
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
