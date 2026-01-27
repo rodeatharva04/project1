@@ -9,16 +9,10 @@ from datetime import datetime, timedelta
 from .models import Paste
 
 def get_logic_now(request):
-    """
-    Bot Requirement: Deterministic Time Travel.
-    If TEST_MODE is on and header x-test-now-ms is present,
-    we pretend the time is that value.
-    """
     if getattr(settings, 'TEST_MODE', False):
         test_now_ms = request.headers.get('x-test-now-ms')
         if test_now_ms:
             try:
-                # Timestamp is in milliseconds
                 dt = datetime.fromtimestamp(int(test_now_ms) / 1000.0)
                 return timezone.make_aware(dt)
             except ValueError:
@@ -26,9 +20,7 @@ def get_logic_now(request):
     return timezone.now()
 
 def healthz(request):
-    """GET /api/healthz - Must return 200 OK and check DB"""
     try:
-        # Simple DB check
         Paste.objects.exists() 
         return JsonResponse({"ok": True}, status=200)
     except Exception:
@@ -36,8 +28,8 @@ def healthz(request):
 
 @csrf_exempt
 def create_paste(request):
-    """POST /api/pastes - Create a new paste"""
     if request.method == 'GET':
+        # This looks for templates/pastes/index.html
         return render(request, 'pastes/index.html')
 
     if request.method != 'POST':
@@ -48,12 +40,10 @@ def create_paste(request):
     except json.JSONDecodeError:
         return JsonResponse({"error": "Invalid JSON"}, status=400)
 
-    # Validate Content
     content = data.get('content')
     if not isinstance(content, str) or not content:
         return JsonResponse({"error": "content is required and must be non-empty string"}, status=400)
 
-    # Validate TTL
     ttl = data.get('ttl_seconds')
     expires_at = None
     if ttl is not None:
@@ -61,47 +51,33 @@ def create_paste(request):
             return JsonResponse({"error": "ttl_seconds must be integer >= 1"}, status=400)
         expires_at = timezone.now() + timedelta(seconds=ttl)
 
-    # Validate Max Views
     max_v = data.get('max_views')
     if max_v is not None:
         if not isinstance(max_v, int) or max_v < 1:
             return JsonResponse({"error": "max_views must be integer >= 1"}, status=400)
 
-    # Create Object
     paste = Paste.objects.create(content=content, max_views=max_v, expires_at=expires_at)
 
-    # Construct URL
-    # Using build_absolute_uri ensures full domain is present
     url = request.build_absolute_uri(f'/p/{paste.id}')
-    
-    # Fix for Deployment: If on Railway/Vercel, force HTTPS if not detected
     if 'railway' in url or 'vercel' in url:
         url = url.replace('http://', 'https://')
     
     return JsonResponse({"id": str(paste.id), "url": url}, status=201)
 
 def fetch_api(request, id):
-    """GET /api/pastes/:id - Fetch via API (JSON)"""
     now = get_logic_now(request)
-
-    # ATOMIC TRANSACTION FOR CONCURRENCY
     with transaction.atomic():
         try:
-            # select_for_update locks the row (or DB in SQLite) until transaction finishes
             paste = Paste.objects.select_for_update().get(pk=id)
         except Paste.DoesNotExist:
             return JsonResponse({"error": "Not Found"}, status=404)
 
-        # Check availability
         if paste.is_unavailable(now):
-            # Even if it exists, if it's expired/maxed, return 404 per requirements
             return JsonResponse({"error": "Unavailable"}, status=404)
 
-        # Increment View
         paste.current_views += 1
         paste.save()
         
-        # Prepare response data inside the transaction to ensure consistency
         remaining = None
         if paste.max_views is not None:
             remaining = max(0, paste.max_views - paste.current_views)
@@ -115,9 +91,7 @@ def fetch_api(request, id):
     return JsonResponse(response_data, status=200)
 
 def view_html(request, id):
-    """GET /p/:id - View via Browser (HTML)"""
     now = get_logic_now(request)
-
     with transaction.atomic():
         try:
             paste = Paste.objects.select_for_update().get(pk=id)
@@ -132,5 +106,5 @@ def view_html(request, id):
         
         content_to_render = paste.content
 
-    # Django Templates automatically escape variables, handling the Security requirement
+    # This looks for templates/pastes/view.html
     return render(request, 'pastes/view.html', {'content': content_to_render})
