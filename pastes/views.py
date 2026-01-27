@@ -55,13 +55,20 @@ def create_paste(request):
             ttl = data.get('ttl_seconds')
             max_v = data.get('max_views')
 
+            # Strict Type Checking
+            if ttl is not None and (not isinstance(ttl, int) or ttl < 1):
+                 return JsonResponse({"error": "ttl_seconds must be a positive integer"}, status=400)
+            
+            if max_v is not None and (not isinstance(max_v, int) or max_v < 1):
+                 return JsonResponse({"error": "max_views must be a positive integer"}, status=400)
+
             expires = None
-            if isinstance(ttl, int) and ttl >= 1:
+            if ttl:
                 expires = timezone.now() + timedelta(seconds=ttl)
 
             paste = Paste.objects.create(
                 content=content,
-                max_views=max_v if isinstance(max_v, int) and max_v >= 1 else None,
+                max_views=max_v,
                 expires_at=expires
             )
 
