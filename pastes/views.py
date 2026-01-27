@@ -12,12 +12,10 @@ def get_current_time(request):
     test_now = request.headers.get('x-test-now-ms')
     if getattr(settings, 'TEST_MODE', False) and test_now:
         try:
-            # Check if input is a number (ms since epoch)
             ts = int(test_now)
-            # Use UTC explicit to avoid local timezone confusion
             return datetime.fromtimestamp(ts / 1000.0, timezone.utc)
         except (ValueError, OSError, OverflowError):
-            pass # Fallback to real time if header is invalid
+            pass
     return timezone.now()
 
 def health_check(request):
@@ -39,7 +37,6 @@ def create_paste(request):
             ttl = data.get('ttl_seconds')
             max_v = data.get('max_views')
 
-            # Strict Type Checking
             if ttl is not None and (not isinstance(ttl, int) or ttl < 1):
                  return JsonResponse({"error": "ttl_seconds must be a positive integer"}, status=400)
             
@@ -61,16 +58,13 @@ def create_paste(request):
         except Exception:
             return JsonResponse({"error": "Invalid input"}, status=400)
     
-    # Simple UI for creating pastes via browser
     return render(request, "pastes/index.html")
 
 def fetch_paste_api(request, id):
     now = get_current_time(request)
 
-    # Atomic transaction for view counting
     with transaction.atomic():
         try:
-             # lock the row for update
             paste = Paste.objects.select_for_update().get(id=id)
         except Paste.DoesNotExist:
             return JsonResponse({"error": "Not found"}, status=404)
@@ -81,7 +75,6 @@ def fetch_paste_api(request, id):
         paste.current_views += 1
         paste.save()
         
-        # Recalculate remaining based on the just-saved state
         remaining = None
         if paste.max_views:
             remaining = max(0, paste.max_views - paste.current_views)
@@ -91,6 +84,8 @@ def fetch_paste_api(request, id):
             "remaining_views": remaining,
             "expires_at": paste.expires_at.isoformat().replace("+00:00", "Z") if paste.expires_at else None
         })
+
+from django.utils.html import escape
 
 def fetch_paste_html(request, id):
     now = get_current_time(request)
@@ -107,5 +102,4 @@ def fetch_paste_html(request, id):
         paste.current_views += 1
         paste.save()
 
-        # HTML response
-        return HttpResponse(f"<html><body><pre>{paste.content}</pre></body></html>")
+        return HttpResponse(f"<html><body><pre>{escape(paste.content)}</pre></body></html>")
