@@ -15,9 +15,6 @@ import os
 import dj_database_url
 
 
-# Requirement: Deterministic time logic
-TEST_MODE = os.environ.get('TEST_MODE', '0') == '1'
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -26,11 +23,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-!3r_gmy^m%_14unqt&yvr5t4(%v)_$i7d0d7j@k6e(9-ykic@!"
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', "django-insecure-default-key-change-me")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-TEST_MODE = os.getenv('TEST_MODE', '0') == '1'
+DEBUG = os.environ.get('DEBUG', 'True') == 'True'
+
+# Requirement: Deterministic time logic
+TEST_MODE = os.environ.get('TEST_MODE', '0') == '1'
 
 ALLOWED_HOSTS = ['*']
 
@@ -64,7 +63,8 @@ ROOT_URLCONF = "pastebin_project.urls"
 DATABASES = {
     'default': dj_database_url.config(
         default='sqlite:///db.sqlite3',
-        conn_max_age=600
+        conn_max_age=600,
+        conn_health_checks=True,
     )
 }
 
@@ -120,21 +120,15 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = "static/"
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-STATIC_URL = 'static/'
-ROOT_URLCONF = 'pastebin_project.urls'
 WSGI_APPLICATION = 'pastebin_project.wsgi.application'
-SECRET_KEY = 'change-this-in-production'
-DEBUG = True
-
-STATIC_URL = 'static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # 3. CSRF Settings (Railway uses HTTPS, so this is required)
 CSRF_TRUSTED_ORIGINS = ['https://*.railway.app']
