@@ -11,8 +11,10 @@ class Paste(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def is_unavailable(self, now):
+        # 1. Check TTL
         if self.expires_at and now >= self.expires_at:
             return True
+        # 2. Check View Count
         if self.max_views is not None and self.current_views >= self.max_views:
             return True
         return False
