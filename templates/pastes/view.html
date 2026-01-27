@@ -1,5 +1,14 @@
 <!DOCTYPE html>
 <html>
-<head><meta charset="UTF-8"><title>View Paste</title></head>
-<body><pre>{{ content }}</pre></body>
+<head>
+    <meta charset="UTF-8">
+    <title>View Paste</title>
+</head>
+<body>
+    <!-- 
+        Django automatically escapes this content. 
+        Scripts <script> will appear as text, not execute.
+    -->
+    <pre>{{ content }}</pre>
+</body>
 </html>
