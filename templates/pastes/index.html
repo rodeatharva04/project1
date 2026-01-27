@@ -3,23 +3,24 @@
 <head><title>Pastebin Lite</title></head>
 <body style="font-family:sans-serif;max-width:600px;margin:50px auto;">
     <h1>Create Paste</h1>
-    <textarea id="c" style="width:100%;height:200px;"></textarea><br>
-    TTL: <input type="number" id="t" placeholder="seconds"><br>
-    Views: <input type="number" id="v" placeholder="max views"><br>
-    <button onclick="s()">Create</button>
-    <div id="r" style="margin-top:20px;"></div>
+    <textarea id="content" style="width:100%;height:200px;" placeholder="Text here..."></textarea><br><br>
+    TTL (sec): <input type="number" id="ttl"><br>
+    Max Views: <input type="number" id="max_v"><br><br>
+    <button onclick="submit()">Create Paste</button>
+    <div id="out" style="margin-top:20px;font-weight:bold;"></div>
     <script>
-        async function s(){
-            const res = await fetch('/api/pastes',{
-                method:'POST',
-                body:JSON.stringify({
-                    content:document.getElementById('c').value,
-                    ttl_seconds:parseInt(document.getElementById('t').value)||null,
-                    max_views:parseInt(document.getElementById('v').value)||null
+        async function submit() {
+            const res = await fetch('/api/pastes', {
+                method: 'POST',
+                body: JSON.stringify({
+                    content: document.getElementById('content').value,
+                    ttl_seconds: parseInt(document.getElementById('ttl').value) || null,
+                    max_views: parseInt(document.getElementById('max_v').value) || null
                 })
             });
-            const d = await res.json();
-            document.getElementById('r').innerHTML = d.url ? `Link: <a href="${d.url}">${d.url}</a>` : d.error;
+            const data = await res.json();
+            document.getElementById('out').innerHTML = data.url ? 
+                `URL: <a href="${data.url}">${data.url}</a>` : `Error: ${data.error}`;
         }
     </script>
 </body>
