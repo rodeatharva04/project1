@@ -1,2 +1,1 @@
-release: python manage.py migrate
-web: gunicorn pastebin_project.wsgi
+web: python manage.py migrate && gunicorn pastebin_project.wsgi --log-file -
