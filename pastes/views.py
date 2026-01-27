@@ -9,7 +9,6 @@ from datetime import datetime, timedelta
 from .models import Paste
 
 def get_current_time(request):
-    """Requirement: Deterministic time for testing."""
     test_now = request.headers.get('x-test-now-ms')
     if getattr(settings, 'TEST_MODE', False) and test_now:
         try:
@@ -22,29 +21,14 @@ def get_current_time(request):
     return timezone.now()
 
 def health_check(request):
-    """Requirement: GET /api/healthz"""
-    # Simple db check
     try:
         Paste.objects.first()
         return JsonResponse({"ok": True})
     except Exception:
-         # Technically requirement says "Reflect whether logic can access persistence"
-         # But also says "Must return 200". If DB is down, 500 might be appropriate,
-         # but let's try to return 200 with ok: false if we want strict schema, 
-         # or just let it fail naturally. The prompt says "Must return HTTP 200".
-         # So we'll catch and return 200 even if degraded? 
-         # "Should reflect whether the application can access its persistence layer"
-         # usually implies 500 if it can't. But "Must return 200" is strong.
-         # Let's fail loudly (500) if DB is down, as that's safer for orchestrators
-         # unless "ok: false" is handled by the checker.
-         # Re-reading: "Must return HTTP 200" is a primary bullet.
-         # We will catch error and return { ok: false } if something is wrong?
-         # Or just ignored it. Let's stick to true if we can connect.
         return JsonResponse({"ok": False}, status=200)
 
 @csrf_exempt
 def create_paste(request):
-    """Requirement: POST /api/pastes"""
     if request.method == "POST":
         try:
             data = json.loads(request.body)
@@ -81,7 +65,6 @@ def create_paste(request):
     return render(request, "pastes/index.html")
 
 def fetch_paste_api(request, id):
-    """Requirement: GET /api/pastes/:id"""
     now = get_current_time(request)
 
     # Atomic transaction for view counting
@@ -110,7 +93,6 @@ def fetch_paste_api(request, id):
         })
 
 def fetch_paste_html(request, id):
-    """Requirement: GET /p/:id (HTML)"""
     now = get_current_time(request)
 
     with transaction.atomic():

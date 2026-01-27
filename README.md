@@ -23,22 +23,19 @@ A simple Pastebin clone built with Django.
 
 ## Running Tests
 
-To verify functionality, including TTL expiry which uses time-travel:
+You can check the deployed application using `curl` or any API client.
 
-1. Start the server in TEST_MODE:
-   *PowerShell:*
-   ```powershell
-   $env:TEST_MODE='1'; python manage.py runserver
-   ```
-   *CMD:*
-   ```cmd
-   set TEST_MODE=1 && python manage.py runserver
-   ```
+**Health Check**
+```bash
+curl -i http://localhost:8000/api/healthz
+```
 
-2. Run the verification script:
-   ```bash
-   python verify.py
-   ```
+**Create Paste**
+```bash
+curl -X POST http://localhost:8000/api/pastes -H "Content-Type: application/json" -d '{"content": "test"}'
+```
+
+**Note:** For full TTL verification, ensure `TEST_MODE=1` is set in your environment variables to enable time-travel logic via `x-test-now-ms` header.
 
 ## Persistence Layer
 
