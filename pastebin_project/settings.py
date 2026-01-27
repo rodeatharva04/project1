@@ -71,3 +71,14 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# ... existing imports ...
+
+# Find ALLOWED_HOSTS and update/add these lines:
+ALLOWED_HOSTS = ['*']
+
+# Railway Specific: Trust the HTTPS proxy headers
+CSRF_TRUSTED_ORIGINS = ['https://*.railway.app']
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# ... rest of settings ...
