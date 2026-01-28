@@ -76,11 +76,8 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 LANGUAGE_CODE = "en-us"
-
 TIME_ZONE = "UTC"
-
 USE_I18N = True
-
 USE_TZ = True
 
 STATIC_URL = "static/"
@@ -91,5 +88,4 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 WSGI_APPLICATION = 'pastebin_project.wsgi.application'
 
-CSRF_TRUSTED_ORIGINS = ['https://*.railway.app']
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')

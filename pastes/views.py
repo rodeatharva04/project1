@@ -80,6 +80,7 @@ def fetch_paste_api(request, id):
             remaining = max(0, paste.max_views - paste.current_views)
 
         return JsonResponse({
+            "id": str(paste.id),
             "content": paste.content,
             "remaining_views": remaining,
             "expires_at": paste.expires_at.isoformat().replace("+00:00", "Z") if paste.expires_at else None
