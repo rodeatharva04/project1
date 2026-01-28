@@ -72,12 +72,8 @@ A secure, scalable pastebin service built with Django. This application allows u
 
 ## Persistence Layer
 
-This application uses a flexible persistence layer configured via `dj-database-url`:
+- **Start Server:** The application uses **SQLite** (`db.sqlite3`) for persistence. This file-based database is created automatically.
 
-- **Development**: Uses **SQLite** (`db.sqlite3`) by default. This ensures a zero-setup local environment where the database is a simple file on disk, surviving across server restarts.
-- **Production**: Designed to use **PostgreSQL**. The application checks the `DATABASE_URL` environment variable to connect to a production-grade database (e.g., on Railway, Heroku, or Vercel).
-
-This approach balances developer experience (ease of setup) with production reliability.
 
 ## Design Decisions
 
@@ -109,7 +105,7 @@ The project is configured for cloud deployment (e.g., Railway) using a standard 
 ### Environment Variables
 - `DEBUG`: Set to `False` in production.
 - `SECRET_KEY`: A long, random string.
-- `DATABASE_URL`: Connection string for PostgreSQL.
+- `DATABASE_URL`: (Optional) URL for the database. Defaults to SQLite if not set.
 - `TEST_MODE`: Set to `0` for production, `1` for testing environments.
 - `DISABLE_COLLECTSTATIC`: Set to `0` (or `1` if handling statics differently).
 
