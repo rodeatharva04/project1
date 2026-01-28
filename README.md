@@ -12,6 +12,10 @@ A secure, scalable pastebin service built with Django. This application allows u
 - [Deployment](#deployment)
 - [Testing](#testing)
 
+## Deployed Application
+**URL**: [https://project1-production-b60c.up.railway.app/](https://project1-production-b60c.up.railway.app/)
+
+
 ## Features
 - **Create Pastes**: Store arbitrary text.
 - **Expiration Controls**:
