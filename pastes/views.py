@@ -2,6 +2,7 @@ import json
 from django.http import JsonResponse, HttpResponse, HttpResponseNotFound
 from django.shortcuts import render, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.cache import never_cache
 from django.utils import timezone
 from django.conf import settings
 from django.db import transaction
@@ -26,6 +27,7 @@ def health_check(request):
         return JsonResponse({"ok": False}, status=200)
 
 @csrf_exempt
+@never_cache
 def create_paste(request):
     if request.method == "POST":
         try:
@@ -60,6 +62,7 @@ def create_paste(request):
     
     return render(request, "pastes/index.html")
 
+@never_cache
 def fetch_paste_api(request, id):
     now = get_current_time(request)
 
@@ -88,6 +91,7 @@ def fetch_paste_api(request, id):
 
 from django.utils.html import escape
 
+@never_cache
 def fetch_paste_html(request, id):
     now = get_current_time(request)
 
